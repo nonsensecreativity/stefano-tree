@@ -41,12 +41,14 @@
 </tbody>
 </table>
 
+<p>This library is implementation of <a href="https://en.wikipedia.org/wiki/Nested_set_model">Nested Set</a> pattern for PHP.</p>
+
 <h2>
 <a id="features" class="anchor" href="#features" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Features</h2>
 
 <ul>
 <li>NestedSet(MPTT - Modified Preorder Tree Traversal)</li>
-<li>Works only with mysql and postgresql</li>
+<li>Tested with MySQL and PostgreSQL but should work with any database vendor which support transaction</li>
 </ul>
 
 <h2>
@@ -61,10 +63,10 @@
 </ul>
 
 <h2>
-<a id="instalation-using-composer" class="anchor" href="#instalation-using-composer" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Instalation using Composer</h2>
+<a id="installation-using-composer" class="anchor" href="#installation-using-composer" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation using Composer</h2>
 
 <ol>
-<li>Add following line to your composer.json file  <code>"stefano/stefano-tree": "*"</code>
+<li>Add following line to your composer.json file  <code>"stefano/stefano-tree": "~1.0.0"</code>
 </li>
 <li>Add following line to your composer.json file <code>"doctrine/dbal": "2.*"</code> if you want to use this library with Doctrine DBAL</li>
 <li>Add following line to your composer.json file <code>"stefano/stefano-db": "~1.4.0"</code> if you want to use this library with Stefano DB</li>
@@ -76,11 +78,12 @@
 <h2>
 <a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h2>
 
-<ul>
-<li>Create tree adapter</li>
-</ul>
+<h3>
+<a id="create-tree-adapter" class="anchor" href="#create-tree-adapter" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Create tree adapter</h3>
 
-<p>Use static factory method</p>
+<ul>
+<li>Use static factory method</li>
+</ul>
 
 <pre><code>$options = new \StefanoTree\NestedSet\Options(array(
     'tableName'    =&gt; 'tree_traversal', //required
@@ -90,6 +93,7 @@
     'levelColumnName' =&gt; 'level', //optional (default level)
     'parentIdColumnName' =&gt; 'parent_id', //optional (default parent_id)
     'sequenceName' =&gt; 'sequence_name_seq', //required for PostgreSQL
+    'scopeColumnName' =&gt; 'scope', //optional
 ));
 
 // One of this
@@ -104,7 +108,9 @@ $dbAdapter = Zend_Db::factory(...)
 $tree = \StefanoTree\NestedSet::factory($options, $dbAdapter);
 </code></pre>
 
-<p>or create tree adapter directly</p>
+<ul>
+<li>or create tree adapter directly</li>
+</ul>
 
 <pre><code>$options = new \StefanoTree\NestedSet\Options(array(...);
 
@@ -115,7 +121,9 @@ $nestedSetAdapter = new \StefanoTree\NestedSet\Adapter\Zend2DbAdapter($options, 
 $tree = new \StefanoTree\NestedSet($nestedSetAdapter);
 </code></pre>
 
-<p>You can join table.</p>
+<ul>
+<li>You can join table</li>
+</ul>
 
 <pre><code>$defaultDbSelect = $nestedSetAdapter-&gt;getDefaultDbSelect();
 
@@ -123,6 +131,20 @@ $tree = new \StefanoTree\NestedSet($nestedSetAdapter);
 //http://framework.zend.com/manual/2.2/en/modules/zend.db.sql.html#join
 $defaultDbSelect-&gt;join($name, $on, $columns, $type);
 $nestedSetAdapter-&gt;setDefaultDbSelect($defaultDbSelect);
+</code></pre>
+
+<h3>
+<a id="creating-nodes" class="anchor" href="#creating-nodes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Creating nodes</h3>
+
+<ul>
+<li>Create root node</li>
+</ul>
+
+<pre><code>// create root node. Scope support is disabled
+$tree-&gt;createRootNode(array());
+
+// create root node. Scope support is enabled
+$tree-&gt;createRootNode(array(), $scope);
 </code></pre>
 
 <ul>
@@ -141,9 +163,8 @@ $tree-&gt;addNodePlacementChildBottom($targetNodeId, $data);
 $tree-&gt;addNodePlacementTop($targetNodeId, $data);
 </code></pre>
 
-<ul>
-<li>Update node</li>
-</ul>
+<h3>
+<a id="update-node" class="anchor" href="#update-node" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Update Node</h3>
 
 <pre><code>$targetNodeId = 10;
 
@@ -154,9 +175,8 @@ $data = array(
 $tree-&gt;updateNode($targetNodeId, $data);
 </code></pre>
 
-<ul>
-<li>Move node</li>
-</ul>
+<h3>
+<a id="move-node" class="anchor" href="#move-node" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Move node</h3>
 
 <pre><code>$sourceNodeId = 15;
 $targetNodeId = 10;
@@ -167,21 +187,16 @@ $tree-&gt;moveNodePlacementChildBottom($sourceNodeId, $targetNodeId);
 $tree-&gt;moveNodePlacementChildTop($sourceNodeId, $targetNodeId);
 </code></pre>
 
-<ul>
-<li>Delete node or branch</li>
-</ul>
+<h3>
+<a id="delete-node-or-branch" class="anchor" href="#delete-node-or-branch" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Delete node or branch</h3>
 
 <pre><code>$nodeId = 15;
 
 $tree-&gt;deleteBranch($nodeId);
 </code></pre>
 
-<ul>
-<li>Clear all nodes except root node</li>
-</ul>
-
-<pre><code>$tree-&gt;clear();
-</code></pre>
+<h3>
+<a id="getting-nodes" class="anchor" href="#getting-nodes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Getting nodes</h3>
 
 <ul>
 <li>Get all children</li>
@@ -192,7 +207,7 @@ $tree-&gt;getChildren($nodeId);
 </code></pre>
 
 <ul>
-<li>Get all descedants</li>
+<li>Get all descendants</li>
 </ul>
 
 <pre><code>$nodeId = 15;
@@ -238,13 +253,22 @@ $tree-&gt;getPath($nodeId, 2);
 $tree-&gt;getPath($nodeId, 0, true);
 </code></pre>
 
-<h2>
-<a id="todo" class="anchor" href="#todo" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>ToDo</h2>
+<h3>
+<a id="validation-and-rebuild-broken-tree" class="anchor" href="#validation-and-rebuild-broken-tree" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Validation and Rebuild broken tree</h3>
 
 <ul>
-<li>rebuild tree</li>
-<li>scope support</li>
+<li>Check if tree is valid</li>
 </ul>
+
+<pre><code>$tree-&gt;isValid($rootNodeId);
+</code></pre>
+
+<ul>
+<li>Rebuild broken tree</li>
+</ul>
+
+<pre><code>$tree-&gt;rebuild($rootNodeId);
+</code></pre>
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/bartko-s/stefano-tree">Stefano-tree</a> is maintained by <a href="https://github.com/bartko-s">bartko-s</a>.</span>
