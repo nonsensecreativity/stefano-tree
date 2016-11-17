@@ -41,45 +41,38 @@
 </tbody>
 </table>
 
-<p>This library is implementation of <a href="https://en.wikipedia.org/wiki/Nested_set_model">Nested Set</a> pattern for PHP.</p>
+<p><a href="https://en.wikipedia.org/wiki/Nested_set_model">Nested Set</a> implementation for PHP.</p>
+
+<p>ONLINE DEMO (soon)</p>
 
 <h2>
 <a id="features" class="anchor" href="#features" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Features</h2>
 
 <ul>
 <li>NestedSet(MPTT - Modified Preorder Tree Traversal)</li>
+<li>Support scopes (multiple independent tree in one db table)</li>
+<li>Rebuild broken tree</li>
 <li>Tested with MySQL and PostgreSQL but should work with any database vendor which support transaction</li>
+<li>Support Frameworks <a href="https://framework.zend.com/manual/1.12/en/zend.db.html">Zend Framework 1</a>, <a href="https://framework.zend.com/manual/2.4/en/index.html#zend-db">Zend Framework 2</a>, <a href="http://docs.doctrine-project.org/projects/doctrine-dbal/en/latest/">Doctrine 2 DBAL</a>, <a href="https://github.com/bartko-s/stefano-db">Stefano Db</a>
+</li>
+<li>It is easy to implement support for any framework</li>
 </ul>
 
 <h2>
 <a id="dependencies" class="anchor" href="#dependencies" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Dependencies</h2>
 
 <ul>
-<li>Optional <a href="https://github.com/bartko-s/stefano-db">Stefano DB</a> This repository is 100% compatible with Zend Framework 2 DB package</li>
-<li>Optional <a href="https://github.com/doctrine/dbal">Doctrine DBAL</a>
-</li>
-<li>Optional <a href="https://github.com/zf1/zend-db.git">Zend Framework 1 - Db package</a>
-</li>
+<li>Stefano Tree has no external dependencies only Php and your framework is required</li>
 </ul>
 
 <h2>
-<a id="installation-using-composer" class="anchor" href="#installation-using-composer" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation using Composer</h2>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation</h2>
 
 <ol>
-<li>Add following line to your composer.json file  <code>"stefano/stefano-tree": "~1.0.0"</code>
-</li>
-<li>Add following line to your composer.json file <code>"doctrine/dbal": "2.*"</code> if you want to use this library with Doctrine DBAL</li>
-<li>Add following line to your composer.json file <code>"stefano/stefano-db": "~1.4.0"</code> if you want to use this library with Stefano DB</li>
-<li>Add following line to your composer.json file <code>"zf1/zend-db": "*"</code> if you want to use this library with Zend Framework 1</li>
-<li>Create db scheme <a href="https://github.com/bartko-s/stefano-tree/tree/master/sql">example db scheme</a>
-</li>
+<li>Add following line to your composer.json file "stefano/stefano-tree": "~2.0.0"</li>
+<li>Create db scheme <a href="https://github.com/bartko-s/stefano-tree/tree/master/sql">example db scheme</a>. Name of table, columns are fully customizable.</li>
+<li><p>Create tree adapter</p></li>
 </ol>
-
-<h2>
-<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h2>
-
-<h3>
-<a id="create-tree-adapter" class="anchor" href="#create-tree-adapter" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Create tree adapter</h3>
 
 <ul>
 <li>Use static factory method</li>
@@ -96,14 +89,7 @@
     'scopeColumnName' =&gt; 'scope', //optional
 ));
 
-// One of this
-//Stefano Db
-$dbAdapter = new \StefanoDb\Adapter\Adapter(...);
-// or Doctrine DBAL
-$dbAdapter = new \Doctrine\DBAL\Connection(...);
-// or Zend 1 DB package
-$dbAdapter = Zend_Db::factory(...)
-
+$dbAdapter = ... supported db adapter ...
 
 $tree = \StefanoTree\NestedSet::factory($options, $dbAdapter);
 </code></pre>
@@ -114,15 +100,15 @@ $tree = \StefanoTree\NestedSet::factory($options, $dbAdapter);
 
 <pre><code>$options = new \StefanoTree\NestedSet\Options(array(...);
 
-$dbAdapter = new \StefanoDb\Adapter\Adapter(array(...));
+$dbAdapter = ... supported db adapter ...
 
-$nestedSetAdapter = new \StefanoTree\NestedSet\Adapter\Zend2DbAdapter($options, $dbAdapter);
+$nestedSetAdapter = new \StefanoTree\NestedSet\Adapter\Zend2($options, $dbAdapter);
 
 $tree = new \StefanoTree\NestedSet($nestedSetAdapter);
 </code></pre>
 
 <ul>
-<li>You can join table</li>
+<li>You can join table. Example is for Zend Framework 2 but it works similar for other supported frameworks.</li>
 </ul>
 
 <pre><code>$defaultDbSelect = $nestedSetAdapter-&gt;getDefaultDbSelect();
@@ -132,6 +118,9 @@ $tree = new \StefanoTree\NestedSet($nestedSetAdapter);
 $defaultDbSelect-&gt;join($name, $on, $columns, $type);
 $nestedSetAdapter-&gt;setDefaultDbSelect($defaultDbSelect);
 </code></pre>
+
+<h2>
+<a id="api" class="anchor" href="#api" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>API</h2>
 
 <h3>
 <a id="creating-nodes" class="anchor" href="#creating-nodes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Creating nodes</h3>
